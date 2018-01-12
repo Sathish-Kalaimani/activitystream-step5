@@ -24,13 +24,15 @@ import com.stackroute.activitystream.service.UserService;
  * format. Starting from Spring 4 and above, we can use @RestController annotation which 
  * is equivalent to using @Controller and @ResposeBody annotation
  */
-
+@RestController
+@RequestMapping(value = "/api/user")
 public class UserController {
 	/*
 	 * Autowiring should be implemented for the UserService. 
 	 * Please note that we should not create any object using the new keyword 
 	 */
-	
+	@Autowired
+	private UserService userService;
 
 
 	/* Define a handler method which will list all the available users.
@@ -41,7 +43,14 @@ public class UserController {
 	 * 
 	 * This handler method should map to the URL "/api/user" using HTTP GET method
 	*/
-
+	@GetMapping
+	public ResponseEntity<List<User>> getAllUsers(HttpSession session){
+		String loggedInUserName = (String) session.getAttribute("loggedInUserName");
+		if(loggedInUserName!=null){
+			return new ResponseEntity<List<User>>(userService.list(),HttpStatus.OK);
+		}
+		return new ResponseEntity<List<User>>(HttpStatus.UNAUTHORIZED);
+	}
 	
 
 	/* Define a handler method which will show details of a specific user.
@@ -53,7 +62,18 @@ public class UserController {
 	 * This handler method should map to the URL "/api/user/{username}" using HTTP GET method
 	 * where "username" should be replaced by a username without {}
 	*/
-	
+	@GetMapping(value ="/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<User> getUser(@PathVariable("username") String username, HttpSession session){
+		String loggedInUserName = (String) session.getAttribute("loggedInUserName");
+		if(loggedInUserName == null){
+			return new ResponseEntity<User>(HttpStatus.UNAUTHORIZED);
+		}
+		User u = userService.get(username);
+		if(u!=null){
+			return new ResponseEntity<User>(u,HttpStatus.OK);  
+		}
+			return new ResponseEntity<User>(HttpStatus.NOT_FOUND);
+	}
 
 	/* Define a handler method which will create a specific user by reading the 
 	 * Serialized object from request body and save the user details in user table 
@@ -68,7 +88,15 @@ public class UserController {
 	 * use the app, he will register himself first before login.
 	 * This handler method should map to the URL "/api/user" using HTTP POST method
 	*/
-	
+	@PostMapping
+	public ResponseEntity<User> createUser(@RequestBody User user, HttpSession session){
+		User usr = userService.get(user.getUsername());
+		if(usr == null){
+			userService.save(user);
+			return new ResponseEntity<User>(usr, HttpStatus.CREATED);
+		}
+		return new ResponseEntity<User>(HttpStatus.CONFLICT);
+	}
 	
 
 	/* Define a handler method which will update an specific user by reading the 
@@ -81,5 +109,19 @@ public class UserController {
 	 * 
 	 * This handler method should map to the URL "/api/user/{username}" using HTTP PUT method
 	*/
-	
+	@PutMapping(value ="/{username}")
+	public ResponseEntity<User> updateUser(@PathVariable("username")String username, @RequestBody User user, HttpSession session){
+		String loggedInUserName = (String) session.getAttribute("loggedInUserName");
+		if(loggedInUserName == null){
+			return new ResponseEntity<User>(HttpStatus.UNAUTHORIZED);
+		}
+		User usr = userService.get(user.getUsername());
+		if(usr == null){
+			return new ResponseEntity<User>(HttpStatus.NOT_FOUND);
+		}
+		usr.setName(user.getName());
+		usr.setPassword(user.getPassword());
+		userService.update(usr);
+		return new ResponseEntity<User>(user, HttpStatus.OK);
+	}
 }

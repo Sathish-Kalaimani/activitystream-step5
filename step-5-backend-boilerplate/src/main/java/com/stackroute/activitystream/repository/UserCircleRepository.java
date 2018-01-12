@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 
 import com.stackroute.activitystream.model.UserCircle;
 
@@ -31,7 +32,7 @@ public interface UserCircleRepository extends CrudRepository<UserCircle, Integer
 	* Write a query to get user circle object object from Database useing username and circlename.
 	* 
 	* */
-	@Query
+	@Query("select u from UserCircle u where u.username = ?1 and u.circleName =?2")
 	UserCircle getUsernameAndCircleName(@Param("username") String username, @Param("circleName") String circleName);
 	
 	/*
@@ -42,7 +43,7 @@ public interface UserCircleRepository extends CrudRepository<UserCircle, Integer
 	* Write a query to retrive circle name from usercircle matching with username
 	*
 	* */
-	@Query
+	@Query("select u from UserCircle u where u.username= ?1")
 	List<String> findCircleNameByUserName(@Param("username") String username);
 	
 

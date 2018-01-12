@@ -2,7 +2,11 @@ package com.stackroute.activitystream.serviceimpl;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.stackroute.activitystream.model.User;
+import com.stackroute.activitystream.repository.UserRepository;
 import com.stackroute.activitystream.service.UserService;
 
 /*
@@ -14,21 +18,22 @@ import com.stackroute.activitystream.service.UserService;
 * better. Additionally, tool support and additional behavior might rely on it in the 
 * future.
 * */
+@Service
 public class UserServiceImpl implements UserService{
 
 	/*
 	 * Autowiring should be implemented for the UserRepository.
 	 *  Please note that we should not create any object using the new keyword.
 	 * */
-	
-
+	@Autowired
+	private UserRepository userRepo;
 	/*
 	 * This method should be used to save a new user. Call the corresponding method of Respository interface.
 	 * 
 	 */
 	public boolean save(User user) {
 
-		return false;
+		return (userRepo.save(user)!=null);
 	}
 
 	/*
@@ -37,7 +42,7 @@ public class UserServiceImpl implements UserService{
 	 */
 	public boolean update(User user) {
 
-		return false;
+		return (userRepo.save(user)!=null);
 
 	}
 
@@ -46,8 +51,11 @@ public class UserServiceImpl implements UserService{
 	 * 
 	 */
 	public boolean delete(User user) {
-
-		return false;
+		userRepo.delete(user);
+		if(userRepo.findOne(user.getUsername())!=null){
+			return false;
+		}
+		return true;
 	}
 
 	/*
@@ -55,7 +63,8 @@ public class UserServiceImpl implements UserService{
 	 * 
 	 */
 	public List<User> list() {
-		return null;
+		
+		return (List<User>) userRepo.findAll();
 	}
 
 	/*
@@ -63,7 +72,10 @@ public class UserServiceImpl implements UserService{
 	 * 
 	 */
 	public boolean validate(String username, String password) {
-
+		
+		if(userRepo.validate(username, password)!=null){
+			return true;
+		}
 		return false;
 	}
 
@@ -71,7 +83,7 @@ public class UserServiceImpl implements UserService{
 	 * This method should be used to get a user by username. Call the corresponding method of Respository interface.
 	 */
 	public User get(String username) {
-		return null;
+		return userRepo.findOne(username);
 
 	}
 
@@ -79,8 +91,7 @@ public class UserServiceImpl implements UserService{
 	 * This method is used to check whether a user with a specific username exists. Call the corresponding method of Respository interface.
 	 */
 	public boolean exists(String username) {
-
-		return false;
+		return userRepo.exists(username);
 
 	}
 }

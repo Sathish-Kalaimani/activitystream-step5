@@ -2,7 +2,16 @@ package com.stackroute.activitystream.serviceimpl;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.stackroute.activitystream.model.Message;
+import com.stackroute.activitystream.model.UserTag;
+import com.stackroute.activitystream.repository.CircleRepository;
+import com.stackroute.activitystream.repository.MessageRepository;
+import com.stackroute.activitystream.repository.UserCircleRepository;
+import com.stackroute.activitystream.repository.UserRepository;
+import com.stackroute.activitystream.repository.UserTagRepository;
 import com.stackroute.activitystream.service.MessageService;
 
 /*
@@ -14,21 +23,34 @@ import com.stackroute.activitystream.service.MessageService;
 * better. Additionally, tool support and additional behavior might rely on it in the 
 * future.
 * */
+@Service
 public class MessageServiceImpl implements MessageService{
 	
+	private static int pageSize = 8;
 	/*
 	 * Autowiring should be implemented for the CircleRepository, UserRepository,
 	 * UserTagRepository, MessageRepository, UserCircleRepository.
 	 *  Please note that we should not create any object using the new keyword
 	 * */
+	@Autowired
+	private UserRepository userRepo;
 	
+	@Autowired
+	private UserCircleRepository userCircleRepo;
 	
+	@Autowired
+	private CircleRepository circleRepo;
+	
+	@Autowired
+	private MessageRepository messageRepo;
+	
+	@Autowired
+	private UserTagRepository userTagRepo;
 	/*
 	 * This method should be used to get all messages from a specific circle. Call the corresponding method of Respository interface.
 	 * */
 	public List<Message> getMessagesFromCircle(String circleName,int pageNumber) {
-		
-		return null;
+		return messageRepo.getMessagesFromCircle(circleName).subList(pageNumber, pageSize);
 	}
 	
 	/*
@@ -37,7 +59,7 @@ public class MessageServiceImpl implements MessageService{
 	 */
 	public List<Message> getMessagesFromUser(String username,String otherUsername,int pageNumber) {
 		
-		return null; 
+		return messageRepo.getMessagesFromUser(username, otherUsername).subList(pageNumber, pageSize); 
 	}
 	
 	/*
@@ -45,8 +67,20 @@ public class MessageServiceImpl implements MessageService{
 	 * whether the circle exists and whether the sender is subscribed to the circle. Call the corresponding method of Respository interface.
 	 */
 	public boolean sendMessageToCircle(String circleName,Message message) {
-		
-		return false;
+		try{
+			message.setPostedDate();
+			message.setCircleName(circleName);
+			
+			if(circleRepo.getOne(circleName)!=null || !(userCircleRepo.findCircleNameByUserName(message.getSenderName()).contains(circleName))) {
+				return false;
+			}
+			messageRepo.save(message);
+			return true;
+		}catch (Exception e){
+			e.printStackTrace();
+			return false;
+		}
+	
 	}
 	
 	
@@ -55,8 +89,18 @@ public class MessageServiceImpl implements MessageService{
 	 * whether the sender and receiver are valid users. Call the corresponding method of Respository interface.
 	 */
 	public boolean sendMessageToUser(String username,Message message) {
+		try{
+			message.setPostedDate();
+			message.setReceiverId(username);
+			if(userRepo.findOne(message.getSenderName())!=null && userRepo.findOne(message.getReceiverId())!=null){
+				return true;
+			}else
+				return false;
+		}catch(Exception e){
+			e.printStackTrace();
+			return false;	
+		}
 		
-		return false;
 		
 	} 	
 	
@@ -65,7 +109,7 @@ public class MessageServiceImpl implements MessageService{
 	 */
 	public List<String> listTags() {
 		
-		return null;
+		return messageRepo.listAllTags();
 		
 	}
 	
@@ -73,9 +117,9 @@ public class MessageServiceImpl implements MessageService{
 	 * This method should be used to list out all subscribed tags by a specific
 	 * user. Call the corresponding method of Respository interface.
 	 */
+	@SuppressWarnings("unchecked")
 	public List<String> listMyTags(String username) {
-		
-		return null;
+		return (List<String>) userTagRepo.findOne(username);
 	}
 	
 	/*
@@ -84,15 +128,26 @@ public class MessageServiceImpl implements MessageService{
 	 */
 	public List<Message> showMessagesWithTag(String tag,int pageNumber) {
 		
-		return null;
+		return messageRepo.showMessagesWithTag(tag).subList(pageNumber, pageSize);
 	}
 	
 	/*
 	 * This method should be used to subscribe a user to a specific tag. Call the corresponding method of Respository interface.
 	 */
 	public boolean subscribeUserToTag(String username, String tag) {
-		
-		return false;
+		try{
+			UserTag userTag = new UserTag();
+			userTag.setUsername(username);
+			userTag.setTag(tag);
+			if(!(listMyTags(username).contains(tag))){
+				userTagRepo.save(userTag);
+				return true;
+			}else
+				return false;
+		}catch(Exception e){
+			e.printStackTrace();
+			return false;
+		}
 	}
 	
 	/*
@@ -100,7 +155,19 @@ public class MessageServiceImpl implements MessageService{
 	 */
 	public boolean unsubscribeUserToTag(String username, String tag) {
 	
-		return false;
+		try{
+			UserTag userTag = new UserTag();
+			userTag.setUsername(username);
+			userTag.setTag(tag);
+			if(!(listMyTags(username).contains(tag))){
+				userTagRepo.delete(userTag);
+				return true;
+			}else
+				return false;
+		}catch(Exception e){
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 }

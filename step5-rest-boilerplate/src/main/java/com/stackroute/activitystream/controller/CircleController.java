@@ -23,6 +23,8 @@ import com.stackroute.activitystream.service.CircleService;
  * format. Starting from Spring 4 and above, we can use @RestController annotation which 
  * is equivalent to using @Controller and @ResposeBody annotation
  */
+@RestController
+@RequestMapping("/api/circle")
 public class CircleController {
 
 	/*
@@ -44,7 +46,8 @@ public class CircleController {
 	 * Autowiring should be implemented for the CircleService. Please note that 
 	 * we should not create any object using the new keyword
 	 * */
-	
+	@Autowired
+	private CircleService circleService;
 	
 	/* Define a handler method which will create a circle by reading the Serialized circle
 	 * object from request body and save the circle in circle table in database. Please 
@@ -58,8 +61,23 @@ public class CircleController {
 	 * 
 	 * This handler method should map to the URL "/api/circle" using HTTP POST method". 
 	*/
-	
-	
+	@PostMapping
+	public ResponseEntity<Circle> createCircle(@RequestBody Circle circle, HttpSession session){
+		String loggedInUserName = (String) session.getAttribute("loggedInUserName");
+		if(loggedInUserName == null){
+			return new ResponseEntity<Circle>(HttpStatus.UNAUTHORIZED);
+		}
+		Circle c = circleService.get(circle.getCircleName());
+		if(c!=null){
+			return new ResponseEntity<Circle>(HttpStatus.CONFLICT);
+		}
+		circle.setCreatorId(loggedInUserName);
+		boolean isCreated = circleService.save(circle);
+		if(!isCreated){
+			return new ResponseEntity<Circle>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+			return new ResponseEntity<Circle>(HttpStatus.CREATED);
+	}
 	/* Define a handler method which will retrieve all the available circles.  
 	 * This handler method should return any one of the status messages basis on different
 	 * situations:
@@ -68,7 +86,15 @@ public class CircleController {
 	 * 
 	 * This handler method should map to the URL "/api/circle" using HTTP GET method". 
 	*/
-
+	@GetMapping
+	public ResponseEntity<List<Circle>> getAllCircles(HttpSession session){
+		String loggedInUserName = (String) session.getAttribute("loggedInUserName");
+		if(loggedInUserName == null){
+			return new ResponseEntity<List<Circle>>(HttpStatus.UNAUTHORIZED);
+		}
+			return new ResponseEntity<List<Circle>>(circleService.getAllCircles(), HttpStatus.OK);
+	}
+	
 	
 
 	/* Define a handler method which will retrieve all the available circles matching a search keyword.  
@@ -80,6 +106,14 @@ public class CircleController {
 	 * This handler method should map to the URL "/api/circle/search/{searchString}" using HTTP GET method" where 
 	 * "searchString" should be replaced with the actual search keyword without the {}
 	*/
-	
+	@GetMapping(value ="/search/{searchString}")
+	public ResponseEntity<List<Circle>> searchCircle(@PathVariable("searchString")String searchString, HttpSession session){
+		String loggedInUserName = (String) session.getAttribute("loggedInUserName");
+		if(loggedInUserName == null){
+			return new ResponseEntity<List<Circle>>(HttpStatus.UNAUTHORIZED);
+		}
+			return new ResponseEntity<List<Circle>>(circleService.getAllCircles(searchString),HttpStatus.OK);
+	}
+		
 
 }

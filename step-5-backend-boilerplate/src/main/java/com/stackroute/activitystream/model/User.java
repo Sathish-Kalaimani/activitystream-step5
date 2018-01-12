@@ -4,6 +4,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.springframework.stereotype.Component;
+
 /*
  * The class "User" will be acting as the data model for the user Table in the database. Please
  * note that this class is annotated with @Entity annotation. Hibernate will scan all package for 
@@ -13,7 +15,9 @@ import javax.persistence.Table;
  * Please note that you will have to use @Component annotation on this class if wish
  * to autowire the class from any other components of the application
  */
-
+@Component
+@Entity
+@Table (name ="user")
 public class User {
 
 	/*
@@ -23,33 +27,47 @@ public class User {
 	 * the getters and setters for the fields.
 	 */
 	
-	public User(String string, String string2, String string3) {
-		// TODO Auto-generated constructor stub
-	}
-
-	public User() {
-		// TODO Auto-generated constructor stub
-	}
-
-	public void setName(String string) {
-		// TODO Auto-generated method stub
+	@Id
+	private String username;
+	private String name;
+	private String password;
+	
+	public User(){
 		
 	}
-
-	public void setPassword(String string) {
-		// TODO Auto-generated method stub
-		
+	
+	public User(String username, String name, String password) {
+		super();
+		this.username = username;
+		this.name = name;
+		this.password = password;
 	}
 
-	public void setUsername(String string) {
-		// TODO Auto-generated method stub
-		
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public String getPassword() {
-		// TODO Auto-generated method stub
-		return null;
+		return password;
 	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	
+	
 
 	
 }

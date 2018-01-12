@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.stackroute.activitystream.model.User;
+import com.stackroute.activitystream.service.UserService;
 
 
 /*
@@ -21,7 +22,8 @@ import com.stackroute.activitystream.model.User;
  * format. Starting from Spring 4 and above, we can use @RestController annotation which 
  * is equivalent to using @Controller and @ResposeBody annotation
  */
-
+@RestController
+@RequestMapping("/api")
 public class UserAuthController {
 
 	/*
@@ -29,8 +31,8 @@ public class UserAuthController {
 	 * we should not create any object using the new keyword 
 	 */
 	
-	
-	
+	@Autowired
+	public UserService userService;
 
 	/* Define a handler method which will authenticate a user by reading the Serialized user
 	 * object from request body containing the username and password and validating the same. Post login, the 
@@ -43,7 +45,16 @@ public class UserAuthController {
 	 * 
 	 * This handler method should map to the URL "/api/authenticate" using HTTP POST method
 	*/
-
+	@PostMapping(value ="/authenticate")
+	public ResponseEntity<User> authenticateUser(@RequestBody User user, HttpSession session){
+		if(userService.validate(user.getUsername(), user.getPassword())){
+			User u = userService.get(user.getUsername());
+			session.setAttribute("loggedInUser", u);
+			session.setAttribute("loggedInUserName", u.getUsername());
+			return new ResponseEntity<User>(u, HttpStatus.OK);
+		}
+		return new ResponseEntity<User>(HttpStatus.UNAUTHORIZED);
+	}
 	
 	
 
@@ -55,7 +66,16 @@ public class UserAuthController {
 	 * 
 	 * This handler method should map to the URL "/api/logout" using HTTP PUT method
 	*/ 
-	
+	@PutMapping(value = "/logout")
+	public ResponseEntity<User> userlogout(HttpSession session){
+		String loggedInUsername = (String) session.getAttribute("loggedInUserName");
+		if(loggedInUsername!=null){
+			User u = new User();
+			session.invalidate();
+			return new ResponseEntity<User>(u, HttpStatus.OK);
+		}
+		return new ResponseEntity<User>(HttpStatus.BAD_REQUEST);
+	}
 
 
 }

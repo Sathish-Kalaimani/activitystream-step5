@@ -4,6 +4,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.stackroute.activitystream.model.Circle;
+import com.stackroute.activitystream.repository.CircleRepository;
+import com.stackroute.activitystream.repository.UserRepository;
 import com.stackroute.activitystream.service.CircleService;
 
 
@@ -16,28 +18,43 @@ import com.stackroute.activitystream.service.CircleService;
 * better. Additionally, tool support and additional behavior might rely on it in the 
 * future.
 * */
+
+@Service
 public class CircleServiceImpl implements CircleService {
 	
 	/*
 	 * Autowiring should be implemented for the CircleRepository and UserRepository.
 	 *  Please note that we should not create any object using the new keyword
 	 * */
+	@Autowired
+	private CircleRepository circleRepo;
 	
+	@Autowired
+	private UserRepository userRepo;
 	/*
 	 * A circle should only be created if the circle does not already exist or the creatorId
 	 * is a valid username. 
 	 * */
 	public boolean save(Circle circle) {
+		try{
+			circle.getCreatedDate();
+			if(userRepo.findOne(circle.getCreatorId())!=null){
+				circleRepo.save(circle);
+				return true;
+			}
+			return false;
+		}catch(Exception e){
+			e.printStackTrace();
+			return false;	
+		}
 		
-		return false;
 	}
 	
 	/*
 	 * This method should return the list of existing circles
 	 * */
 	public List<Circle> getAllCircles() {
-		
-		return null;
+		return circleRepo.findAll();
 	}
 	
 	/*
@@ -45,24 +62,25 @@ public class CircleServiceImpl implements CircleService {
 	 * search String
 	 * */
 	public List<Circle> getAllCircles(String searchString) {
-		
-		return null;
+		return circleRepo.findAll(searchString);
 	}
 	
 	/*
 	 * This method should return a specific circle which matches the Circle Name
 	 */
 	public Circle get(String circleName) {
-		
-		return null;
+		return circleRepo.findOne(circleName);
 	}
 	
 	/*
 	 * This method should delete a specific circle(if exists)
 	 */
 	public boolean delete(Circle circle) {
-		
-		return false;
+		circleRepo.delete(circle);
+		if(circleRepo.findOne(circle.getCircleName())!=null){
+			return false;
+		}
+		return true;
 	}
 		
 }
