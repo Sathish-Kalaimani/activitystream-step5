@@ -77,7 +77,7 @@ public class MessageController {
 		message.setSenderName(loggedInUserName);
 		boolean isSent = messageService.sendMessageToCircle(circleName, message);
 		if(!isSent){
-			return new ResponseEntity<Message>(HttpStatus.UNAUTHORIZED);
+			return new ResponseEntity<Message>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return new ResponseEntity<Message>(HttpStatus.OK);
 		

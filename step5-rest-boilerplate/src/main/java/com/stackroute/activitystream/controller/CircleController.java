@@ -76,7 +76,7 @@ public class CircleController {
 		if(!isCreated){
 			return new ResponseEntity<Circle>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-			return new ResponseEntity<Circle>(HttpStatus.CREATED);
+			return new ResponseEntity<Circle>(circle,HttpStatus.CREATED);
 	}
 	/* Define a handler method which will retrieve all the available circles.  
 	 * This handler method should return any one of the status messages basis on different

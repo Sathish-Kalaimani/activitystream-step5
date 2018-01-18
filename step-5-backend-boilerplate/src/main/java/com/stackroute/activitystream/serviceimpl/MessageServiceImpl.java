@@ -33,24 +33,24 @@ public class MessageServiceImpl implements MessageService{
 	 *  Please note that we should not create any object using the new keyword
 	 * */
 	@Autowired
-	private UserRepository userRepo;
+	private UserRepository userRepository;
 	
 	@Autowired
-	private UserCircleRepository userCircleRepo;
+	private UserCircleRepository userCircleRepository;
 	
 	@Autowired
-	private CircleRepository circleRepo;
+	private CircleRepository circleRepository;
 	
 	@Autowired
-	private MessageRepository messageRepo;
+	private MessageRepository messageRepository;
 	
 	@Autowired
-	private UserTagRepository userTagRepo;
+	private UserTagRepository userTagRepository;
 	/*
 	 * This method should be used to get all messages from a specific circle. Call the corresponding method of Respository interface.
 	 * */
 	public List<Message> getMessagesFromCircle(String circleName,int pageNumber) {
-		return messageRepo.getMessagesFromCircle(circleName).subList(pageNumber, pageSize);
+		return messageRepository.getMessagesFromCircle(circleName).subList(pageNumber, pageSize);
 	}
 	
 	/*
@@ -59,7 +59,7 @@ public class MessageServiceImpl implements MessageService{
 	 */
 	public List<Message> getMessagesFromUser(String username,String otherUsername,int pageNumber) {
 		
-		return messageRepo.getMessagesFromUser(username, otherUsername).subList(pageNumber, pageSize); 
+		return messageRepository.getMessagesFromUser(username, otherUsername).subList(pageNumber, pageSize); 
 	}
 	
 	/*
@@ -70,11 +70,11 @@ public class MessageServiceImpl implements MessageService{
 		try{
 			message.setPostedDate();
 			message.setCircleName(circleName);
-			
-			if(circleRepo.getOne(circleName)!=null || !(userCircleRepo.findCircleNameByUserName(message.getSenderName()).contains(circleName))) {
+			System.out.println(circleRepository.findOne(circleName));
+			if(circleRepository.findOne(circleName) ==null || !(userCircleRepository.findCircleNameByUserName(message.getSenderName()).contains(circleName))) {
 				return false;
 			}
-			messageRepo.save(message);
+			messageRepository.save(message);
 			return true;
 		}catch (Exception e){
 			e.printStackTrace();
@@ -92,7 +92,8 @@ public class MessageServiceImpl implements MessageService{
 		try{
 			message.setPostedDate();
 			message.setReceiverId(username);
-			if(userRepo.findOne(message.getSenderName())!=null && userRepo.findOne(message.getReceiverId())!=null){
+			if((userRepository.findOne(message.getSenderName())!=null) && userRepository.findOne(message.getReceiverId())!=null){
+				messageRepository.save(message);
 				return true;
 			}else
 				return false;
@@ -109,7 +110,7 @@ public class MessageServiceImpl implements MessageService{
 	 */
 	public List<String> listTags() {
 		
-		return messageRepo.listAllTags();
+		return messageRepository.listAllTags();
 		
 	}
 	
@@ -119,7 +120,7 @@ public class MessageServiceImpl implements MessageService{
 	 */
 	@SuppressWarnings("unchecked")
 	public List<String> listMyTags(String username) {
-		return (List<String>) userTagRepo.findOne(username);
+		return (List<String>) userTagRepository.findOne(username);
 	}
 	
 	/*
@@ -128,7 +129,7 @@ public class MessageServiceImpl implements MessageService{
 	 */
 	public List<Message> showMessagesWithTag(String tag,int pageNumber) {
 		
-		return messageRepo.showMessagesWithTag(tag).subList(pageNumber, pageSize);
+		return messageRepository.showMessagesWithTag(tag).subList(pageNumber, pageSize);
 	}
 	
 	/*
@@ -140,7 +141,7 @@ public class MessageServiceImpl implements MessageService{
 			userTag.setUsername(username);
 			userTag.setTag(tag);
 			if(!(listMyTags(username).contains(tag))){
-				userTagRepo.save(userTag);
+				userTagRepository.save(userTag);
 				return true;
 			}else
 				return false;
@@ -160,7 +161,7 @@ public class MessageServiceImpl implements MessageService{
 			userTag.setUsername(username);
 			userTag.setTag(tag);
 			if(!(listMyTags(username).contains(tag))){
-				userTagRepo.delete(userTag);
+				userTagRepository.delete(userTag);
 				return true;
 			}else
 				return false;

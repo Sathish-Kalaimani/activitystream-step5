@@ -32,7 +32,7 @@ public interface UserCircleRepository extends CrudRepository<UserCircle, Integer
 	* Write a query to get user circle object object from Database useing username and circlename.
 	* 
 	* */
-	@Query("select u from UserCircle u where u.username = ?1 and u.circleName =?2")
+	@Query("from UserCircle where username = :username and circleName = :circleName")
 	UserCircle getUsernameAndCircleName(@Param("username") String username, @Param("circleName") String circleName);
 	
 	/*
@@ -43,7 +43,7 @@ public interface UserCircleRepository extends CrudRepository<UserCircle, Integer
 	* Write a query to retrive circle name from usercircle matching with username
 	*
 	* */
-	@Query("select u from UserCircle u where u.username= ?1")
+	@Query("select circleName from UserCircle where username= :username")
 	List<String> findCircleNameByUserName(@Param("username") String username);
 	
 

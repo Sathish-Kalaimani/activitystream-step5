@@ -39,7 +39,7 @@ public class PersistenceJPAConfig{
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
 		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
 		em.setDataSource(dataSource());
-		em.setPackagesToScan(new String[] {"com.stackroute.activitystream.model"});
+		em.setPackagesToScan(new String [] {"com.stackroute.activitystream.model"});
 		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
 		em.setJpaVendorAdapter(vendorAdapter);
 		em.setJpaProperties(additionalProperties());
@@ -69,7 +69,7 @@ public class PersistenceJPAConfig{
      */
    
    @Bean
-   public PlatformTransactionManager transactoinManager(EntityManagerFactory emf) {
+   public PlatformTransactionManager transactionManager(EntityManagerFactory emf) {
 	   JpaTransactionManager transactionManager = new JpaTransactionManager();
 	   transactionManager.setEntityManagerFactory(emf);
 	   return transactionManager;

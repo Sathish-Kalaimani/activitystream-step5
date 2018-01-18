@@ -32,7 +32,7 @@ public interface MessageRepository extends CrudRepository<Message, Integer>{
 	* 
 	* Write a query to retrieve all messages from database posted on specific circle.
 	* */
-	@Query("select m from Message m where m.circleName = ?1")
+	@Query("select m from Message m where m.circleName = (?1)")
 	public List<Message> getMessagesFromCircle(@Param("circleName") String circleName);
 	
 	
@@ -43,7 +43,7 @@ public interface MessageRepository extends CrudRepository<Message, Integer>{
 	* 
 	* Write a query to retrieve all messages from the database send between two specified users. 
 	* */
-	@Query("select m from Message m where m.senderId = ?1 and m.receiverId = ?2")
+	@Query("select m from Message m where m.senderName = (?1) and m.receiverId = (?2)")
 	public List<Message> getMessagesFromUser(@Param("username") String username, @Param("otherUsername") String otherUsername);
 	
 	/*
@@ -57,7 +57,7 @@ public interface MessageRepository extends CrudRepository<Message, Integer>{
 	* This method will retrieve all tags which are subscribed by a specific user and write a query for the same.
 	* 
 	* */
-	@Query("select t from UserTag t where t.username = ?1")
+	@Query("select t from UserTag t where t.username = (?1)")
 	public List<String> listMyTags(@Param("username") String username);
 	
 	
@@ -66,7 +66,7 @@ public interface MessageRepository extends CrudRepository<Message, Integer>{
 	* matching the tag in method parameter among all messages and write a query for the same.
 	* 
 	* */
-	@Query("select m from Message m where m.tag = ?1")
+	@Query("select m from Message m where m.tag = (?1)")
 	public List<Message> showMessagesWithTag(@Param("tag") String tag);
 	
 	
@@ -74,7 +74,7 @@ public interface MessageRepository extends CrudRepository<Message, Integer>{
 	* This method will retrieve an UserTag from UserTag table which matches the username
 	* and tag in parameter, write a query for the same.
 	* */
-	@Query("select t from UserTag t where t.username =?1 and t.tag = ?2")
+	@Query("select t from UserTag t where t.username = (?1) and t.tag = (?2) ")
 	public UserTag getUserTag(@Param("username") String username, @Param("tag") String tag);
 	
 }

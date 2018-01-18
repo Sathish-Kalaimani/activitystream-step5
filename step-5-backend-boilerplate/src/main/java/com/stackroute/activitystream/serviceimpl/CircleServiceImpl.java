@@ -27,10 +27,10 @@ public class CircleServiceImpl implements CircleService {
 	 *  Please note that we should not create any object using the new keyword
 	 * */
 	@Autowired
-	private CircleRepository circleRepo;
+	private CircleRepository circleRepository;
 	
 	@Autowired
-	private UserRepository userRepo;
+	private UserRepository userRepository;
 	/*
 	 * A circle should only be created if the circle does not already exist or the creatorId
 	 * is a valid username. 
@@ -38,11 +38,11 @@ public class CircleServiceImpl implements CircleService {
 	public boolean save(Circle circle) {
 		try{
 			circle.getCreatedDate();
-			if(userRepo.findOne(circle.getCreatorId())!=null){
-				circleRepo.save(circle);
-				return true;
+			if(circleRepository.findOne(circle.getCircleName())!= null || userRepository.findOne(circle.getCreatorId())==null){
+				return false;
 			}
-			return false;
+				circleRepository.save(circle);
+				return true;
 		}catch(Exception e){
 			e.printStackTrace();
 			return false;	
@@ -54,7 +54,7 @@ public class CircleServiceImpl implements CircleService {
 	 * This method should return the list of existing circles
 	 * */
 	public List<Circle> getAllCircles() {
-		return circleRepo.findAll();
+		return circleRepository.findAll();
 	}
 	
 	/*
@@ -62,22 +62,22 @@ public class CircleServiceImpl implements CircleService {
 	 * search String
 	 * */
 	public List<Circle> getAllCircles(String searchString) {
-		return circleRepo.findAll(searchString);
+		return circleRepository.findAll(searchString);
 	}
 	
 	/*
 	 * This method should return a specific circle which matches the Circle Name
 	 */
 	public Circle get(String circleName) {
-		return circleRepo.findOne(circleName);
+		return circleRepository.findOne(circleName);
 	}
 	
 	/*
 	 * This method should delete a specific circle(if exists)
 	 */
 	public boolean delete(Circle circle) {
-		circleRepo.delete(circle);
-		if(circleRepo.findOne(circle.getCircleName())!=null){
+		circleRepository.delete(circle);
+		if(circleRepository.findOne(circle.getCircleName())!=null){
 			return false;
 		}
 		return true;

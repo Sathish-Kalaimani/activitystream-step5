@@ -30,13 +30,13 @@ public class UserCircleServiceImpl implements UserCircleService {
 	 * create any object using the new keyword
 	 */
 	@Autowired
-	private UserRepository userRepo;
+	private UserRepository userRepository;
 
 	@Autowired
-	private CircleRepository circleRepo;
+	private CircleRepository circleRepository;
 
 	@Autowired
-	private UserCircleRepository userCircleRepo;
+	private UserCircleRepository userCircleRepository;
 
 	/*
 	 * This method should be used to add a user to a specific circle. You need
@@ -46,12 +46,13 @@ public class UserCircleServiceImpl implements UserCircleService {
 	 * 
 	 */
 	public boolean addUser(String username, String circleName) {
+		UserCircle userCircle = new UserCircle(username, circleName);
 		try {
-			UserCircle userCircle = new UserCircle(username, circleName);
-			if (userRepo.findOne(username) != null && circleRepo.findOne(circleName) != null) {
-				if (get(username, circleName) == null) {
-					userCircleRepo.save(userCircle);
-				}
+			
+			if (userRepository.findOne(username) != null && circleRepository.findOne(circleName) != null) {
+				if (userCircleRepository.getUsernameAndCircleName(username, circleName)== null) {
+					userCircleRepository.save(userCircle);
+					}
 			} else
 				return false;
 		} catch (Exception e) {
@@ -68,9 +69,9 @@ public class UserCircleServiceImpl implements UserCircleService {
 	 * 
 	 */
 	public boolean removeUser(String username, String circleName) {
+		UserCircle userCircle = userCircleRepository.getUsernameAndCircleName(username, circleName);
 		try {
-			UserCircle userCircle = new UserCircle(username, circleName);
-			userCircleRepo.delete(userCircle);
+			userCircleRepository.delete(userCircle);
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -84,7 +85,7 @@ public class UserCircleServiceImpl implements UserCircleService {
 	 * 
 	 */
 	public List<String> getMyCircles(String username) {
-		return userCircleRepo.findCircleNameByUserName(username);
+		return userCircleRepository.findCircleNameByUserName(username);
 	}
 
 	/*
@@ -94,7 +95,7 @@ public class UserCircleServiceImpl implements UserCircleService {
 	 * 
 	 */
 	public UserCircle get(String username, String circleName) {
-		return userCircleRepo.getUsernameAndCircleName(username, circleName);
+		return (UserCircle) userCircleRepository.getUsernameAndCircleName(username, circleName);
 	}
 
 }

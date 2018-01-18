@@ -93,7 +93,7 @@ public class UserController {
 		User usr = userService.get(user.getUsername());
 		if(usr == null){
 			userService.save(user);
-			return new ResponseEntity<User>(usr, HttpStatus.CREATED);
+			return new ResponseEntity<User>(user, HttpStatus.CREATED);
 		}
 		return new ResponseEntity<User>(HttpStatus.CONFLICT);
 	}
@@ -115,7 +115,7 @@ public class UserController {
 		if(loggedInUserName == null){
 			return new ResponseEntity<User>(HttpStatus.UNAUTHORIZED);
 		}
-		User usr = userService.get(user.getUsername());
+		User usr = userService.get(username);
 		if(usr == null){
 			return new ResponseEntity<User>(HttpStatus.NOT_FOUND);
 		}
